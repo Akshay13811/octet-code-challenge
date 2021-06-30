@@ -1,5 +1,4 @@
 var express = require('express');
-const bodyParser= require('body-parser');
 var cors = require('cors');
 var forexHelper = require('./helpers/forex-helper');
 
@@ -8,7 +7,7 @@ app.use(cors({
 	origin: true //Set to accept requests from all urls
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json());
 
 //Mongodb database
 const MongoClient = require('mongodb').MongoClient;
@@ -36,7 +35,7 @@ MongoClient.connect("mongodb+srv://admin:LXPcIg6bdUNAC56u@cluster0.prbyn.mongodb
 				
 				//Send marked up forex rates in the response
 				res.send({
-					markedupValues
+					rates: markedupValues
 				});
 			}));
 		})
@@ -61,7 +60,7 @@ MongoClient.connect("mongodb+srv://admin:LXPcIg6bdUNAC56u@cluster0.prbyn.mongodb
 				_id: "markup"
 			}, {
 				$set: {
-					value: Number(req.body.value)
+					value: value
 				}
 			});
 			res.send({

@@ -1,0 +1,91 @@
+.forex-converter {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 2fr;
+    gap: 10px;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.forex-converter > div {
+    padding: 10px;
+}
+
+.forex-amount,
+.source-currency,
+.target-currency {
+    display: grid;
+    gap: 10px;
+}
+
+.ant-input-number-input::before {
+    content: "$"
+}
+
+.source-currency {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.target-currency > .ant-select {
+    overflow: hidden;
+}
+
+.source-currency-value {
+    border: 1px solid #d9d9d9;
+    background-color: #FFF;
+    line-height: 30px;
+    padding: 0px 11px;
+}
+
+.field-heading {
+    font-weight: 600;
+}
+
+.converted-amount {
+    grid-column: 1/4;
+    display: grid;
+}
+
+.converted-value {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.secondary-info {
+    padding-top: 25px;
+    font-size: 12px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.last-updated {
+    text-align: right;
+}
+
+@media only screen and (max-width: 768px) {
+    .forex-converter {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 0px;
+    }
+
+    .forex-amount,
+    .source-currency,
+    .target-currency,
+    .converted-amount {
+        width: 100%;
+    }
+
+    .secondary-info {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+
+    .last-updated {
+        text-align: left;
+    }
+}

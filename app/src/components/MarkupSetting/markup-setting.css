@@ -1,0 +1,19 @@
+.markup-setting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.markup-setting-form {
+    min-width: 355px;
+}
+
+.right-btn {
+    float: right;
+}
+
+@media only screen and (max-width: 768px) {
+    .markup-setting-form {
+        min-width: inherit;
+    }
+}
