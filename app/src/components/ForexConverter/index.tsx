@@ -33,21 +33,22 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
 	const [forexRates, setForexRates] = useState<Map<string, IRateInfo>>(new Map());
     const [currentCurrency, setCurrentCurrency] = useState<string>();
 
-    useEffect(() => {
-        getForexRates();
-    }, []);
-
     //Gets the latest forex rates from the server
-    function getForexRates() {
+    useEffect(() => {
+        let isMount = true;
         fetch(`http://${HOST_IP}:8080/rates`, { method: 'GET' })
         .then(res => res.json())
         .then((response) => {
+            if (!isMount) return;
             processForexRateResponse(response);
         }, (response) => {
             alert(response);
             message.error("An unexpected error ocurred", 10);
         });
-    }
+        return () => {
+            isMount = false;
+        };
+    }, []);
 
     //Processes the response and stores the forex data in react state
     function processForexRateResponse(response: any) {
@@ -122,7 +123,7 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
             </div>
             <div className="target-currency">
                 <span className="field-heading">To</span>
-                <Select loading={!currentCurrency ? true : false} value={currentCurrency} dropdownStyle={{ width: "100%" }} onChange={handleCurrencyChange}>
+                <Select loading={!currentCurrency ? true : false} value={currentCurrency} dropdownStyle={{ width: "100%" }} onChange={handleCurrencyChange} data-testid="target-currency-select">
                     {renderTargetCurrencyOptions()}
                 </Select>
             </div>
