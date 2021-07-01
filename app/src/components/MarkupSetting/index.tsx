@@ -29,7 +29,7 @@ const MarkupSetting: React.FC<IMarkupSettingProps> = (props) => {
                 });
             }
         }, (response) => {
-            message.error(response);
+            message.error("An unexpected error ocurred", 10);
         });
     }
 
