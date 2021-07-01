@@ -3,23 +3,25 @@ import { ReactNode, useEffect, useState } from 'react';
 //3rd party libraries
 import { Input, message, Select } from 'antd';
 import moment, { Moment } from 'moment';
+//@ts-ignore
+import ReactCountryFlag from "react-country-flag";
 
 import './forex-converter.css';
 import { HOST_IP } from '../common';
 
 //Hard code currency full names since there are currently only 4 supported currencies.
 //These could be obtained from an api if the list grows and is dynamic
-const FOREX_CURRENCY_FULL_NAME: Record<string, string> = {
-    "USD": "US Dollar",
-    "NZD": "New Zealand Dollar",
-    "JPY": "Japanese Yen",
-    "CNY": "Chinese Yuan Renminbi"
+const FOREX_CURRENCY_FULL_NAME: Record<string, {name: string, countryCode?:string}> = {
+    "AUD": {name: "Australian Dollar", countryCode: "AU"},
+    "USD": {name: "US Dollar", countryCode: "US"},
+    "NZD": {name: "New Zealand Dollar", countryCode: "NZ"},
+    "JPY": {name: "Japanese Yen", countryCode: "JP"},
+    "CNY": {name: "Chinese Yuan Renminbi", countryCode: "CN"}
 }
 
 const { Option } = Select;
 
 interface IForexConverterProps {
-    showLastUpdated?: boolean
 }
 
 interface IRateInfo {
@@ -42,7 +44,6 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
             if (!isMount) return;
             processForexRateResponse(response);
         }, (response) => {
-            alert(response);
             message.error("An unexpected error ocurred", 10);
         });
         return () => {
@@ -87,7 +88,7 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
         if(currentCurrency && forexRates.get(currentCurrency)?.rate){
             let rate = forexRates.get(currentCurrency)?.rate;
             if(rate) {
-                return `${(Number(amount) * rate).toPrecision(6)} ${FOREX_CURRENCY_FULL_NAME[currentCurrency] ? FOREX_CURRENCY_FULL_NAME[currentCurrency] : currentCurrency}`
+                return `${(Number(amount) * rate).toPrecision(6)} ${FOREX_CURRENCY_FULL_NAME[currentCurrency] ? FOREX_CURRENCY_FULL_NAME[currentCurrency].name : currentCurrency}`
             }
         }
     }
@@ -96,10 +97,16 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
         let options:ReactNode[] = [];
         forexRates.forEach((value, key) => {
             options.push(
-                <Option key={key} value={key}>{key}{FOREX_CURRENCY_FULL_NAME[key] ? ` - ${FOREX_CURRENCY_FULL_NAME[key]}` : ''}</Option>
+                <Option key={key} value={key} className="target-currency-option">{renderCountryFlag(key)}{key}{FOREX_CURRENCY_FULL_NAME[key] ? ` - ${FOREX_CURRENCY_FULL_NAME[key].name}` : ''}</Option>
             );
         });
         return options;
+    }
+
+    function renderCountryFlag(key: string) {
+        if(FOREX_CURRENCY_FULL_NAME[key]?.countryCode) {
+            return (<ReactCountryFlag countryCode={FOREX_CURRENCY_FULL_NAME[key].countryCode} className="country-flag" style={{height: "1.2em", width: "1.2em"}} svg />)
+        }
     }
 
     return (
@@ -118,7 +125,7 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
             <div className="source-currency">
                 <span className="field-heading">From</span>
                 <div className="source-currency-value">
-                    AUD - Australian Dollar
+                    {renderCountryFlag("AUD")} AUD - Australian Dollar
                 </div>
             </div>
             <div className="target-currency">
@@ -139,16 +146,12 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
                         {(Number(amount) !== 1 && currentCurrency) ? `1 AUD = ${forexRates.get(currentCurrency)?.rate.toPrecision(6)}` : ''}
                     </span>
                     <span className="last-updated">
-                        {(props.showLastUpdated && currentCurrency) && `Rates last updated: ${forexRates.get(currentCurrency)?.lastUpdate.utc().format("DD MMM YYYY, HH:mm UTC")}`}
+                        {currentCurrency && `Rates last updated: ${forexRates.get(currentCurrency)?.lastUpdate.utc().format("DD MMM YYYY, HH:mm UTC")}`}
                     </span>
                 </span>
             </div>
         </div>
     )
-}
-
-ForexConverter.defaultProps = {
-    showLastUpdated: true
 }
 
 export default ForexConverter;

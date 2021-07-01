@@ -37,6 +37,21 @@
     background-color: #FFF;
     line-height: 30px;
     padding: 0px 11px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.target-currency .ant-select-selection-item,
+.target-currency-option .ant-select-item-option-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.country-flag {
+    border-radius: 4px;
 }
 
 .field-heading {
@@ -49,13 +64,13 @@
 }
 
 .converted-value {
-    font-size: 24px;
+    font-size: 2em;
     font-weight: 600;
 }
 
 .secondary-info {
     padding-top: 25px;
-    font-size: 12px;
+    font-size: 0.8em;
 
     display: grid;
     grid-template-columns: 1fr 1fr;

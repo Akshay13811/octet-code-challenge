@@ -78,7 +78,7 @@ const MarkupSetting: React.FC<IMarkupSettingProps> = (props) => {
                         required: true,
                         message: "Please enter a markup percentage"
                     },
-                    ({ getFieldValue }) => ({
+                    () => ({
                         validator(_, value) {
                         let markup = Number(value);
                         if (!isNaN(Number(markup)) && markup >= 0 && markup <= 100) {
