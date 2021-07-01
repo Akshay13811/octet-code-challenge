@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
-
+import SwapOutlined from '@ant-design/icons/SwapOutlined';
 //3rd party libraries
-import { Input, message, Select } from 'antd';
+import { Button, Input, message, Select } from 'antd';
 import moment, { Moment } from 'moment';
 //@ts-ignore
 import ReactCountryFlag from "react-country-flag";
@@ -9,14 +9,14 @@ import ReactCountryFlag from "react-country-flag";
 import './forex-converter.css';
 import { HOST_IP } from '../common';
 
-//Hard code currency full names since there are currently only 4 supported currencies.
+//Hard code currency full names, country code and symbols since there are currently only 4 supported currencies.
 //These could be obtained from an api if the list grows and is dynamic
-const FOREX_CURRENCY_FULL_NAME: Record<string, {name: string, countryCode?:string}> = {
-    "AUD": {name: "Australian Dollar", countryCode: "AU"},
-    "USD": {name: "US Dollar", countryCode: "US"},
-    "NZD": {name: "New Zealand Dollar", countryCode: "NZ"},
-    "JPY": {name: "Japanese Yen", countryCode: "JP"},
-    "CNY": {name: "Chinese Yuan Renminbi", countryCode: "CN"}
+const FOREX_CURRENCY_FULL_NAME: Record<string, {name: string, countryCode?:string, symbol?:string}> = {
+    "AUD": {name: "Australian Dollar", countryCode: "AU", symbol: "$"},
+    "USD": {name: "US Dollar", countryCode: "US", symbol: "$"},
+    "NZD": {name: "New Zealand Dollar", countryCode: "NZ", symbol: "$"},
+    "JPY": {name: "Japanese Yen", countryCode: "JP", symbol: "¥"},
+    "CNY": {name: "Chinese Yuan Renminbi", countryCode: "CN", symbol: "¥"}
 }
 
 const { Option } = Select;
@@ -29,11 +29,17 @@ interface IRateInfo {
     lastUpdate: Moment
 }
 
+enum ConvertDirection {
+    FromBase,
+    ToBase
+}
+
 const ForexConverter: React.FC<IForexConverterProps> = (props) => {
 
     const [amount, setAmount] = useState<string>("1.00");
 	const [forexRates, setForexRates] = useState<Map<string, IRateInfo>>(new Map());
     const [currentCurrency, setCurrentCurrency] = useState<string>();
+    const [convertDirection, setConvertDirection] = useState<ConvertDirection>(ConvertDirection.FromBase);
 
     //Gets the latest forex rates from the server
     useEffect(() => {
@@ -79,6 +85,10 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
         setAmount(e.target.value);
     }
 
+    function handleSwapCurrency() {
+        setConvertDirection(convertDirection === ConvertDirection.FromBase ? ConvertDirection.ToBase : ConvertDirection.FromBase);
+    }
+
     function setAmountPrecision() {
         setAmount(Number(amount).toFixed(2))
     }
@@ -87,9 +97,35 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
     function convertedCurrency() {
         if(currentCurrency && forexRates.get(currentCurrency)?.rate){
             let rate = forexRates.get(currentCurrency)?.rate;
-            if(rate) {
+            if(rate && convertDirection === ConvertDirection.FromBase) {
                 return `${(Number(amount) * rate).toPrecision(6)} ${FOREX_CURRENCY_FULL_NAME[currentCurrency] ? FOREX_CURRENCY_FULL_NAME[currentCurrency].name : currentCurrency}`
+            } else if(rate && convertDirection === ConvertDirection.ToBase) {
+                return `${(Number(amount) * ( 1 / rate)).toPrecision(6)} ${FOREX_CURRENCY_FULL_NAME["AUD"] ? FOREX_CURRENCY_FULL_NAME["AUD"].name : "AUD"}`
             }
+        }
+    }
+
+    function sourceCurrency() {
+        if(convertDirection === ConvertDirection.FromBase) {
+            return (<>{Number(amount).toFixed(2)} Australian {Number(amount) === 1 ? "Dollar" : "Dollars"} =</>)
+        } else if(convertDirection === ConvertDirection.ToBase) {
+            return (<>{Number(amount).toFixed(2)} {FOREX_CURRENCY_FULL_NAME[currentCurrency!] ? FOREX_CURRENCY_FULL_NAME[currentCurrency!].name : currentCurrency} =</>)
+        }
+    }
+
+    function inputPrefix() {
+        if(convertDirection === ConvertDirection.FromBase) {
+            return "$";
+        } else if(convertDirection === ConvertDirection.ToBase) {
+            return FOREX_CURRENCY_FULL_NAME[currentCurrency!] ? FOREX_CURRENCY_FULL_NAME[currentCurrency!].symbol : ''
+        }
+    }
+
+    function displayExchangeRate() {
+        if(convertDirection === ConvertDirection.FromBase) {
+            return (Number(amount) !== 1 && currentCurrency) ? `1 AUD = ${forexRates.get(currentCurrency)?.rate.toPrecision(6)}` : ''
+        } else {
+            return (Number(amount) !== 1 && currentCurrency) ? `1 ${currentCurrency} = ${(1 / forexRates.get(currentCurrency)!.rate).toPrecision(6)}` : ''
         }
     }
 
@@ -119,31 +155,36 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
                     type="number"
                     onBlur={setAmountPrecision}
                     onChange={handleAmountChange}
-                    prefix={"$"} 
+                    prefix={inputPrefix()}
                 />
             </div>
-            <div className="source-currency">
-                <span className="field-heading">From</span>
+            <div className={`source-currency ${convertDirection === ConvertDirection.ToBase ? 'swap' : ''}`}>
+                <span className="field-heading">{`${convertDirection === ConvertDirection.ToBase ? 'To' : 'From'}`}</span>
                 <div className="source-currency-value">
-                    {renderCountryFlag("AUD")} AUD - Australian Dollar
+                    {renderCountryFlag("AUD")} {FOREX_CURRENCY_FULL_NAME["AUD"].name}
                 </div>
             </div>
-            <div className="target-currency">
-                <span className="field-heading">To</span>
+            <div className="swap-currency">
+                <Button type="primary" onClick={handleSwapCurrency} className="swap-btn">
+                    <SwapOutlined />
+                </Button>
+            </div>
+            <div className={`target-currency ${convertDirection === ConvertDirection.ToBase ? 'swap' : ''}`}>
+                <span className="field-heading">{`${convertDirection === ConvertDirection.FromBase ? 'To' : 'From'}`}</span>
                 <Select loading={!currentCurrency ? true : false} value={currentCurrency} dropdownStyle={{ width: "100%" }} onChange={handleCurrencyChange} data-testid="target-currency-select">
                     {renderTargetCurrencyOptions()}
                 </Select>
             </div>
             <div className="converted-amount" hidden={!currentCurrency ? true : false}>
                 <span>
-                    {Number(amount).toFixed(2)} Australian {Number(amount) === 1 ? "Dollar" : "Dollars"} =
+                    {sourceCurrency()}
                 </span>
                 <span className="converted-value">
                     {convertedCurrency()}
                 </span>
                 <span className="secondary-info">
                     <span className="exchange-rate">
-                        {(Number(amount) !== 1 && currentCurrency) ? `1 AUD = ${forexRates.get(currentCurrency)?.rate.toPrecision(6)}` : ''}
+                        {displayExchangeRate()}
                     </span>
                     <span className="last-updated">
                         {currentCurrency && `Rates last updated: ${forexRates.get(currentCurrency)?.lastUpdate.utc().format("DD MMM YYYY, HH:mm UTC")}`}

@@ -1,6 +1,6 @@
 .forex-converter {
     display: grid;
-    grid-template-columns: 1.5fr 2fr 2fr;
+    grid-template-columns: 1.5fr 2fr auto 2fr;
     gap: 10px;
 
     align-items: center;
@@ -50,6 +50,25 @@
     gap: 10px;
 }
 
+.swap-currency {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+}
+
+.source-currency.swap {
+    grid-column: 4;
+    grid-row: 1;
+}
+
+.target-currency.swap {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.swap-btn {
+    grid-row: 2;
+}
+
 .country-flag {
     border-radius: 4px;
 }
@@ -59,7 +78,7 @@
 }
 
 .converted-amount {
-    grid-column: 1/4;
+    grid-column: 1/5;
     display: grid;
 }
 
@@ -82,8 +101,9 @@
 
 @media only screen and (max-width: 768px) {
     .forex-converter {
-        display: flex;
-        flex-direction: column-reverse;
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr 1fr;
+        grid-template-columns: 100%;
         gap: 0px;
     }
 
@@ -102,5 +122,29 @@
 
     .last-updated {
         text-align: left;
+    }
+
+    .source-currency.swap {
+        grid-column: 1;
+        grid-row: 4;
+    }
+    
+    .target-currency.swap {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .source-currency {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    
+    .target-currency {
+        grid-column: 1;
+        grid-row: 4;
+    }
+
+    .converted-amount {
+        grid-column: inherit;
     }
 }
