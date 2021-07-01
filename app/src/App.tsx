@@ -24,11 +24,20 @@ const SettingsPage = (props: any) => {
   );
 }
 
+//Gets the deafult key based on the url
+function getDefaultMenuKey() {
+  if(window.location.pathname === "/settings") {
+    return "2";
+  } else {
+    return "1";
+  }
+}
+
 function App() {
   return (
     <Layout className="app-layout">
       <Header className="header">
-        <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+        <Menu theme="dark" mode="horizontal" defaultSelectedKeys={[getDefaultMenuKey()]}>
           <Menu.Item key="1" onClick={() => navigate('/')}>Exchange Rate Converter</Menu.Item>
           <Menu.Item key="2" onClick={() => navigate('settings')}>Settings</Menu.Item>
         </Menu>
