@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
-import SwapOutlined from '@ant-design/icons/SwapOutlined';
 //3rd party libraries
+import SwapOutlined from '@ant-design/icons/SwapOutlined';
 import { Button, Input, message, Select } from 'antd';
 import moment, { Moment } from 'moment';
 //@ts-ignore
@@ -37,7 +37,7 @@ enum ConvertDirection {
 const ForexConverter: React.FC<IForexConverterProps> = (props) => {
 
     const [amount, setAmount] = useState<string>("1.00");
-	const [forexRates, setForexRates] = useState<Map<string, IRateInfo>>(new Map());
+    const [forexRates, setForexRates] = useState<Map<string, IRateInfo>>(new Map());
     const [currentCurrency, setCurrentCurrency] = useState<string>();
     const [convertDirection, setConvertDirection] = useState<ConvertDirection>(ConvertDirection.FromBase);
 
@@ -115,9 +115,9 @@ const ForexConverter: React.FC<IForexConverterProps> = (props) => {
 
     function inputPrefix() {
         if(convertDirection === ConvertDirection.FromBase) {
-            return "$";
+            return FOREX_CURRENCY_FULL_NAME["AUD"] ? FOREX_CURRENCY_FULL_NAME["AUD"!].symbol : '$';
         } else if(convertDirection === ConvertDirection.ToBase) {
-            return FOREX_CURRENCY_FULL_NAME[currentCurrency!] ? FOREX_CURRENCY_FULL_NAME[currentCurrency!].symbol : ''
+            return FOREX_CURRENCY_FULL_NAME[currentCurrency!] ? FOREX_CURRENCY_FULL_NAME[currentCurrency!].symbol : '';
         }
     }
 
